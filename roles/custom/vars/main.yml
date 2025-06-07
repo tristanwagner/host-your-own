@@ -13,6 +13,7 @@ basic_packages:
   - lsof
   - lua5.3
   - mmv
+  - make
   - python3-pip
   - ripgrep
   - rsync
