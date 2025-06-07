@@ -4,9 +4,21 @@
   vars:
     packages: "cron"
 
+- name: Add domains for all services
+  set_fact:
+    cert_domains: "{{ domain_list | join(',') }}"
+  vars:
+    domain_list: >
+      {{ [domain] +
+         (['cloud.' ~ domain] if 'nextcloud' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+         (['vault.' ~ domain] if 'vault' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+         (['git.' ~ domain] if 'gitea' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+         (['umami.' ~ domain] if 'umami' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+         (['searx.' ~ domain] if 'searx' in ansible_run_tags or ansible_run_tags | length == 0 else []) }}
+
 - name: Run cert script
   tags: ignore-ci # certbot can't work on ci with made up data
-  command: "/usr/bin/certbot --nginx -n --agree-tos --redirect --expand --email {{ email }} --domains {{ domain }},cloud.{{ domain }},vault.{{ domain }},searx.{{ domain }},git.{{ domain }},umami.{{ domain }}"
+  command: "/usr/bin/certbot --nginx -n --agree-tos --redirect --expand --email {{ email }} --domains {{ cert_domains }}"
   changed_when: true
 
 - name: Keep certs updated

@@ -11,14 +11,14 @@
 
 - name: Docker env file
   copy:
-    dest: "/home/{{ username }}/docker_env_files/{{ service.cloud.subdomain }}.env"
+    dest: "/home/{{ username }}/docker_env_files/{{ service.nextcloud.subdomain }}.env"
     content: |
       NEXTCLOUD_ADMIN_USER="{{ nextcloud_username }}"
       NEXTCLOUD_ADMIN_PASSWORD="{{ nextcloud_password }}"
-      NEXTCLOUD_TRUSTED_DOMAINS=localhost {{ service.cloud.subdomain }}.{{ domain }}
+      NEXTCLOUD_TRUSTED_DOMAINS=localhost {{ service.nextcloud.subdomain }}.{{ domain }}
       NEXTCLOUD_TRUSTED_PROXIES={{ ip | default('') }}
-      NEXTCLOUD_OVERWRITEHOST={{ service.cloud.subdomain }}.{{ domain }}
+      NEXTCLOUD_OVERWRITEHOST={{ service.nextcloud.subdomain }}.{{ domain }}
       NEXTCLOUD_OVERWRITEPROTOCOL={{ ports.https }}
-      NEXTCLOUD_OVERWRITECLIURL={{ ports.https }}://{{ service.cloud.subdomain }}.{{ domain }}
+      NEXTCLOUD_OVERWRITECLIURL={{ ports.https }}://{{ service.nextcloud.subdomain }}.{{ domain }}
       SQLITE_DATABASE=nextcloud_db
     mode: 0644

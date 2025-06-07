@@ -57,6 +57,10 @@ You can use the `--tags` flag to run only some of the roles:
 
 You can check the available tags in the `run.yml` file.
 
+> [! CAUTION]
+> if you run the `nginx` role after first install using tags, make sure to also
+> specify the services already installed so the proxies can be properly regenerated
+
 ## Post-setup
 
 After the main playbook is done, you should find the Nextcloud, Gitea, SearxNG

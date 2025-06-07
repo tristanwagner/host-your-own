@@ -18,11 +18,11 @@
       /usr/bin/docker run -d
       --restart unless-stopped
       --name {{ container }}
-      --env-file /home/{{ username }}/docker_env_files/{{ service.cloud.subdomain }}.env
+      --env-file /home/{{ username }}/docker_env_files/{{ service.nextcloud.subdomain }}.env
       -v {{ data_dir }}/data/:/var/www/html/data/
       -v {{ data_dir }}/apps/:/var/www/html/apps/
       -v {{ data_dir }}/config/:/var/www/html/config/
-      -p {{ service.cloud.port }}:80
+      -p {{ service.nextcloud.port }}:80
       {{ image }};
       while [ "$(docker inspect -f '{{ '{{ .State.Running }}' }}' {{ container }})" != "true" ]; do sleep 1; done;
       docker exec --user www-data {{ container }} php occ upgrade --no-interaction
@@ -37,7 +37,7 @@
 
     - name: Weekly backups
       cron:
-        name: "backup cloud"
+        name: "backup nextcloud"
         state: "present"
         special_time: "weekly"
         job: >
@@ -45,7 +45,7 @@
 
 - name: Enable auto-refresh with Cron
   cron:
-    name: "cloud - cron"
+    name: "nextcloud - cron"
     state: "present"
     minute: "*/5"
     job: >
