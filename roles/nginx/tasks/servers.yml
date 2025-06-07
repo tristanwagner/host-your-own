@@ -20,7 +20,7 @@
 
 - name: Set default onion address if missing
   set_fact:
-    onion_address: {"content": "NOT_FOUND"}
+    onion_address: { "content": "NOT_FOUND" }
   when: onion_address.failed is defined and onion_address.failed
 
 - name: Config website server
@@ -28,6 +28,17 @@
     src: "nginx-website"
     dest: "/etc/nginx/sites-enabled/website"
     mode: 0644
+
+- name: Build list of services to proxy (based on tags)
+  set_fact:
+    active_services: >-
+      {{
+        ([service.nextcloud] if 'nextcloud' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+        ([service.vault] if 'vault' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+        ([service.searx] if 'searx' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+        ([service.gitea] if 'gitea' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+        ([service.umami] if 'umami' in ansible_run_tags or ansible_run_tags | length == 0 else [])
+      }}
 
 - name: Config proxy server for services
   vars:
@@ -37,12 +48,7 @@
     src: nginx-service
     dest: "/etc/nginx/sites-enabled/{{ item.subdomain }}"
     mode: 0644
-  loop:
-    - "{{ service.cloud }}"
-    - "{{ service.vault }}"
-    - "{{ service.searx }}"
-    - "{{ service.gitea }}"
-    - "{{ service.umami }}"
+  loop: "{{ active_services }}"
   loop_control:
     label: "{{ item.subdomain }}"
 

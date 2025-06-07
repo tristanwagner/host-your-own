@@ -7,7 +7,7 @@ all:
   vars:
     common_backup_dir: "/home/{{ username }}/backups"
     service:
-      cloud:
+      nextcloud:
         subdomain: "cloud"
         port: 81
       vault:

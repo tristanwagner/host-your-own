@@ -2,8 +2,8 @@
   vars:
     container: "nextcloud"
     image: "nextcloud"
-    data_dir: "/{{ service.cloud.subdomain }}-data"
-    backup_dir: "{{ common_backup_dir }}/{{ service.cloud.subdomain }}"
+    data_dir: "/{{ service.nextcloud.subdomain }}-data"
+    backup_dir: "{{ common_backup_dir }}/{{ service.nextcloud.subdomain }}"
   block:
     - import_tasks: setup.yml
     - import_tasks: run.yml
