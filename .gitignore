@@ -1,3 +1,4 @@
 .env.yml
 ./*.vim
 ssh_keys/
+ansible.log

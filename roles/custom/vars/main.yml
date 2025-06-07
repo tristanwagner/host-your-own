@@ -15,6 +15,7 @@ basic_packages:
   - mmv
   - make
   - python3-pip
+  - python3-venv
   - ripgrep
   - rsync
   - stow
