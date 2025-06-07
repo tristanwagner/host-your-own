@@ -22,6 +22,7 @@ An Ansible playbook that sets up:
 - Your dotfiles set up and ready to go (using GNU-Stow).
 - Up to date [neovim](https://github.com/neovim/neovim) install (if nvim config
 is found in dotfiles).
+- an [OpenVPN](https://openvpn.net/) server with a registered user
 
 ## Requirements
 

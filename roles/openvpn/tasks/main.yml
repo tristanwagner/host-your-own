@@ -1,0 +1,47 @@
+- name: Check if OpenVPN install script already exists
+  stat:
+    path: "/home/{{ username }}/openvpn-install.sh"
+  register: openvpn_script
+
+- name: Download OpenVPN install script if not already present
+  get_url:
+    url: https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+    dest: "/home/{{ username }}/openvpn-install.sh"
+    mode: 0755
+  when: not openvpn_script.stat.exists
+
+- name: Check if OpenVPN install has already been run
+  stat:
+    path: /etc/systemd/system/openvpn@.service
+  register: openvpn_installed
+
+- name: Run install OpenVPN + create user
+  shell: ./openvpn-install.sh
+  args:
+    chdir: "/home/{{ username }}"
+  become: true
+  environment:
+    APPROVE_INSTALL: "y"
+    APPROVE_IP: "y"
+    IPV6_SUPPORT: "n"
+    PORT_CHOICE: "1"
+    PROTOCOL_CHOICE: "1"
+    DNS: "1"
+    COMPRESSION_ENABLED: "n"
+    CUSTOMIZE_ENC: "n"
+    CLIENT: "{{ username }}"
+    PASS: "1"
+  when: not openvpn_installed.stat.exists
+
+- name: Fetch generated OpenVPN client config
+  fetch:
+    src: "/home/{{ username }}/{{ username }}.ovpn" # Replace with actual generated file path
+    dest: "~/"
+    flat: yes
+  when: not openvpn_installed.stat.exists
+  register: fetch_result
+
+- name: Inform that client config has been copied
+  debug:
+    msg: "OpenVPN client config has been copied to {{ fetch_result.dest }}{{ username}}.opvpn use it to connect to the server !"
+  when: fetch_result is defined and fetch_result.changed

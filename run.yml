@@ -80,3 +80,7 @@
       become: true
       tags:
         - welcome
+
+    - role: openvpn
+      tags:
+        - openvpn
