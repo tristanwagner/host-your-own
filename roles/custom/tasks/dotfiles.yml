@@ -11,18 +11,11 @@
   git:
     repo: "{{ dotfiles_repo }}"
     dest: "/home/{{ username }}/dotfiles"
-    track_submodules: true
     force: true
 
-- name: Get configs to unstow
-  command: "ls /home/{{ username }}/dotfiles"
-  register: dot_dirs
-  changed_when: true
-
-- name: Unstow dotfiles
+- name: Stow dotfiles
   args:
     chdir: "/home/{{ username }}/dotfiles"
   command:
-    cmd: "stow -R {{ item }}"
-  loop: "{{ dot_dirs.stdout_lines }}"
+    cmd: "stow -R ."
   changed_when: true
