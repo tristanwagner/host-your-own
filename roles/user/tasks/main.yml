@@ -24,3 +24,6 @@
 
         - name: Sudo and SSH
           import_tasks: priviledges.yml
+
+        - name: Set SWAP & limit ram usage
+          import_tasks: ram.yml
