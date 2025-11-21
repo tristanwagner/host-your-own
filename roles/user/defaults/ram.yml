@@ -1,5 +1,0 @@
-user_ram_limit_percentage: 80
-swap_size_mb:
-  2048 # Default: 2 GB swap. Adjust as needed for your VPS.
-  # Common practice is 1x-2x RAM, but on VPS, 1-4GB is often sufficient.
-  # Consider your total RAM and workload.

@@ -1,107 +1,112 @@
 ---
-# --- Task 1: Check and Setup Swap Space ---
-- name: Check for existing swap space
-  ansible.builtin.shell: "swapon --show --noheadings"
-  register: swap_status
-  changed_when: false
-  failed_when: false # Don't fail if swapon isn't found or no swap exists
+- name: Manage Swap
+  block:
+    # --- Task 1: Check and Setup Swap Space ---
+    - name: Check for existing swap space
+      ansible.builtin.shell: "swapon --show --noheadings"
+      register: swap_status
+      changed_when: false
+      failed_when: false # Don't fail if swapon isn't found or no swap exists
 
-- name: Determine if swap needs to be set up
-  ansible.builtin.set_fact:
-    swap_needed: true
-  when: swap_status.stdout == "" or swap_status.rc != 0
+    - name: Determine if swap needs to be set up
+      ansible.builtin.set_fact:
+        swap_needed: true
+      when: swap_status.stdout == "" or swap_status.rc != 0
 
-- name: Set swap file path (if swap is needed)
-  ansible.builtin.set_fact:
-    swap_file_path: "/swapfile"
-  when: swap_needed
+    - name: Set swap file path (if swap is needed)
+      ansible.builtin.set_fact:
+        swap_file_path: "/swapfile"
+      when: swap_needed
 
-- name: Create swap file
-  ansible.builtin.shell: "dd if=/dev/zero of={{ swap_file_path }} bs=1M count={{ swap_size_mb }}"
-  args:
-    creates: "{{ swap_file_path }}" # Only run if swap_file_path does not exist
-  when: swap_needed
+    - name: Create swap file
+      ansible.builtin.shell: "dd if=/dev/zero of={{ swap_file_path }} bs=1M count={{ swap_size_mb }}"
+      args:
+        creates: "{{ swap_file_path }}" # Only run if swap_file_path does not exist
+      when: swap_needed
 
-- name: Set correct permissions for swap file
-  ansible.builtin.file:
-    path: "{{ swap_file_path }}"
-    owner: root
-    group: root
-    mode: "0600"
-  when: swap_needed
+    - name: Set correct permissions for swap file
+      ansible.builtin.file:
+        path: "{{ swap_file_path }}"
+        owner: root
+        group: root
+        mode: "0600"
+      when: swap_needed
 
-- name: Format the swap file
-  ansible.builtin.command: "mkswap {{ swap_file_path }}"
-  when: swap_needed
+    - name: Format the swap file
+      ansible.builtin.command: "mkswap {{ swap_file_path }}"
+      when: swap_needed
 
-- name: Enable swap file immediately
-  ansible.builtin.command: "swapon {{ swap_file_path }}"
-  when: swap_needed
+    - name: Enable swap file immediately
+      ansible.builtin.command: "swapon {{ swap_file_path }}"
+      when: swap_needed
 
-- name: Add swap file to /etc/fstab for persistence
-  ansible.builtin.mount:
-    path: "{{ swap_file_path }}"
-    src: "{{ swap_file_path }}"
-    fstype: swap
-    opts: defaults
-    state: present
-  when: swap_needed
+    - name: Add swap file to /etc/fstab for persistence
+      ansible.builtin.mount:
+        path: "{{ swap_file_path }}"
+        src: "{{ swap_file_path }}"
+        fstype: swap
+        opts: defaults
+        state: present
+      when: swap_needed
+  when: swap_size_mb is defined and swap_size_mb not in [none, '']
 
 # --- End Swap Setup Tasks ---
 
-# --- Existing User RAM Limit Tasks Below ---
-- name: Get total system RAM
-  ansible.builtin.shell: "grep MemTotal /proc/meminfo | awk '{print $2}'"
-  register: total_ram_kb_output
-  changed_when: false
+# --- User RAM Limit Tasks ---
+- name: Limit User RAM
+  block:
+    - name: Get total system RAM
+      ansible.builtin.shell: "grep MemTotal /proc/meminfo | awk '{print $2}'"
+      register: total_ram_kb_output
+      changed_when: false
 
-- name: Calculate target RAM limit in bytes
-  ansible.builtin.set_fact:
-    target_ram_bytes: "{{ (total_ram_kb_output.stdout | float * 1024 * user_ram_limit_percentage / 100) | round(0, 'half') | int }}"
+    - name: Calculate target RAM limit in bytes
+      ansible.builtin.set_fact:
+        target_ram_bytes: "{{ (total_ram_kb_output.stdout | float * 1024 * user_ram_limit_percentage / 100) | round(0, 'half') | int }}"
 
-- name: Define override directory and file paths
-  ansible.builtin.set_fact:
-    override_dir: "/etc/systemd/system/user.slice.d"
-    override_file: "{{ override_dir }}/override.conf"
+    - name: Define override directory and file paths
+      ansible.builtin.set_fact:
+        override_dir: "/etc/systemd/system/user.slice.d"
+        override_file: "{{ override_dir }}/override.conf"
 
-- name: Check if override file already exists and contains the correct limit
-  ansible.builtin.stat:
-    path: "{{ override_file }}"
-  register: override_file_stat
+    - name: Check if override file already exists and contains the correct limit
+      ansible.builtin.stat:
+        path: "{{ override_file }}"
+      register: override_file_stat
 
-- name: Read existing override file content if it exists
-  ansible.builtin.slurp:
-    src: "{{ override_file }}"
-  register: existing_override_content
-  when: override_file_stat.stat.exists and override_file_stat.stat.isreg
+    - name: Read existing override file content if it exists
+      ansible.builtin.slurp:
+        src: "{{ override_file }}"
+      register: existing_override_content
+      when: override_file_stat.stat.exists and override_file_stat.stat.isreg
 
-- name: Set flag if limit needs to be applied
-  ansible.builtin.set_fact:
-    apply_limit: true
-  when: not override_file_stat.stat.exists or
-    (override_file_stat.stat.exists and
-    'MemoryMax={{ target_ram_bytes }}' not in (existing_override_content.content | b64decode))
+    - name: Set flag if limit needs to be applied
+      ansible.builtin.set_fact:
+        apply_limit: true
+      when: not override_file_stat.stat.exists or
+        (override_file_stat.stat.exists and
+        'MemoryMax={{ target_ram_bytes }}' not in (existing_override_content.content | b64decode))
 
-- name: Create systemd override directory
-  ansible.builtin.file:
-    path: "{{ override_dir }}"
-    state: directory
-    mode: "0755"
-  when: apply_limit
+    - name: Create systemd override directory
+      ansible.builtin.file:
+        path: "{{ override_dir }}"
+        state: directory
+        mode: "0755"
+      when: apply_limit
 
-- name: Apply MemoryMax limit to user.slice
-  ansible.builtin.blockinfile:
-    path: "{{ override_file }}"
-    block: |
-      [Slice]
-      MemoryMax={{ target_ram_bytes }}
-    create: true
-    mode: "0644"
-    backup: true
+    - name: Apply MemoryMax limit to user.slice
+      ansible.builtin.blockinfile:
+        path: "{{ override_file }}"
+        block: |
+          [Slice]
+          MemoryMax={{ target_ram_bytes }}
+        create: true
+        mode: "0644"
+        backup: true
+      when: apply_limit
 
-  when: apply_limit
-
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-  when: apply_limit
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: apply_limit
+  when: user_ram_limit_percentage is defined and user_ram_limit_percentage not in [none, '']

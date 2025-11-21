@@ -43,5 +43,5 @@
 
 - name: Inform that client config has been copied
   debug:
-    msg: "OpenVPN client config has been copied to {{ fetch_result.dest }}{{ username}}.opvpn use it to connect to the server !"
+    msg: "OpenVPN client config has been copied to {{ fetch_result.dest }} use it to connect to the server !"
   when: fetch_result is defined and fetch_result.changed

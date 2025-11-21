@@ -10,7 +10,7 @@
       import_tasks: root.yml
 
       when: dotfiles_repo is defined and dotfiles_repo | length > 0
-    - name: Install basick packages
+    - name: Install basic packages
       import_tasks: install.yml
 
     - name: Set zsh as default shell

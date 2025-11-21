@@ -21,8 +21,7 @@
   register: nvim_install
 
 - name: Install nvim tarball
-  # Only when nvim conf is present AND nvim is not installed
-  when: nvim_config.stat.exists and not nvim_install.stat.exists
+  when: not nvim_install.stat.exists
   block:
     - name: Download latest Neovim release
       get_url:
@@ -66,3 +65,30 @@
         group: root
         mode: 0755
         remote_src: true
+
+- name: Check if oh-my-zsh is installed
+  stat:
+    path: "/home/{{ username }}/.oh-my-zsh"
+  register: oh_my_zsh_install
+
+- name: Install oh-my-zsh
+  become: true
+  become_user: "{{ username }}"
+  shell: 'CHSH=no RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+  args:
+    creates: "/home/{{ username }}/.oh-my-zsh"
+  when: not oh_my_zsh_install.stat.exists
+
+- name: Check if powerlevel10k is installed
+  stat:
+    path: "/home/{{ username }}/.oh-my-zsh/custom/themes/powerlevel10k"
+  register: powerlevel10k_install
+
+- name: Install powerlevel10k theme
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.git:
+    repo: "https://github.com/romkatv/powerlevel10k.git"
+    dest: "/home/{{ username }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1
+  when: not powerlevel10k_install.stat.exists

@@ -25,4 +25,4 @@ else
 fi
 
 pipx install --include-deps ansible
-~/.local/bin/ansible-playbook run.yml "$@" -vvv
+~/.local/bin/ansible-playbook run.yml "$@"

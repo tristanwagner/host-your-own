@@ -5,6 +5,7 @@
     packages: "cron"
 
 - name: Monthly updates
+  become: true
   cron:
     name: update umami
     state: present
@@ -32,6 +33,7 @@
         mode: 0755
 
     - name: Weekly backups
+      become: true
       cron:
         name: "backup umami"
         state: "present"

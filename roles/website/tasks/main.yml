@@ -1,3 +1,9 @@
+- name: Ensure home directory allows Nginx traversal
+  file:
+    path: "/home/{{ username }}"
+    state: directory
+    mode: 0711
+
 - name: Create and chown website dir
   file:
     path: "/home/{{ username }}/website"

@@ -3,6 +3,11 @@
     name: docker
     state: present
 
+- name: Create cron group
+  group:
+    name: cron
+    state: present
+
 - name: Create user {{ username }}
   user:
     name: "{{ username }}"
