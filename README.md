@@ -6,7 +6,7 @@ An Ansible playbook that sets up:
 
 - Static website server (served through HTTP and Onion land).
 - Open source, GDPR-compliant [analytics](https://github.com/umami-software/umami)
-@ `umami.domain`.
+  @ `umami.domain`.
 - [Nextcloud](https://nextcloud.com/) instance @ `cloud.domain`.
 - [Vaultwarden](https://github.com/dani-garcia/vaultwarden) instance @ `vault.domain`.
 - [SearxNG](https://github.com/searxng/searxng) instance @ `searx.domain`.
@@ -21,7 +21,7 @@ An Ansible playbook that sets up:
 - [A bunch](./roles/custom/vars/main.yml) of useful CLI tools (add your own!).
 - Your dotfiles set up and ready to go (assuming a [GNU-Stow setup](https://devintheshell.com/blog/stow/)).
 - Up to date [neovim](https://github.com/neovim/neovim) install (if nvim config
-is found in dotfiles).
+  is found in dotfiles).
 - an [OpenVPN](https://openvpn.net/) server with a registered user
 
 ## Requirements
@@ -67,6 +67,30 @@ You can check the available tags in the `run.yml` file.
 > [! CAUTION]
 > if you run the `nginx` role after first install using tags, make sure to also
 > specify the services already installed so the proxies can be properly regenerated
+
+## Development
+
+If you want to test out specific tasks without having to run extra stuff
+you can create a new playbook like for example testing stuff in `custom/tasks/install.yml`:
+
+```yml
+- hosts: all
+  remote_user: "{{ username }}"
+  vars_files:
+    - .env.yml
+  become: true
+  tasks:
+    - import_tasks: roles/custom/tasks/install.yml
+```
+
+assign some tags to your tasks using `tasks: test`
+
+and then run the playbook like
+
+```sh
+
+~/.local/bin/ansible-playbook test_install.yml --tags="test"
+```
 
 ## Post-setup
 

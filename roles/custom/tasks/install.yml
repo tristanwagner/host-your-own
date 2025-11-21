@@ -15,6 +15,7 @@
   with_items:
     - "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
 
+# NVIM
 - name: Check if nvim is already installed
   stat:
     path: "/usr/bin/nvim"
@@ -66,6 +67,7 @@
         mode: 0755
         remote_src: true
 
+# OH MY ZSH
 - name: Check if oh-my-zsh is installed
   stat:
     path: "/home/{{ username }}/.oh-my-zsh"
@@ -92,3 +94,45 @@
     dest: "/home/{{ username }}/.oh-my-zsh/custom/themes/powerlevel10k"
     depth: 1
   when: not powerlevel10k_install.stat.exists
+
+# NVM + NODE
+- name: Set NVM path variable
+  set_fact:
+    nvm_path: "{{ ansible_env.NVM_DIR | default('/home/' + username + '/.nvm') }}/nvm.sh"
+
+- name: Check if nvm is installed
+  stat:
+    path: "{{ nvm_path }}/nvm.sh"
+  register: nvm_check
+
+- name: Install nvm
+  become: true
+  become_user: "{{ username }}"
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  args:
+    executable: /bin/bash
+  register: nvm_install
+  when: not nvm_check.stat.exists
+
+- name: Check if Node is installed via NVM
+  become: true
+  become_user: "{{ username }}"
+  shell: |
+    source {{ nvm_path }}/nvm.sh
+    node -v
+  args:
+    executable: /bin/bash
+  register: node_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Install Node via NVM
+  become: true
+  become_user: "{{ username }}"
+  shell: |
+    source {{ nvm_path }}/nvm.sh
+    nvm install --lts
+    nvm alias default 'lts/*'
+  args:
+    executable: /bin/bash # <--- CRITICAL FIX
+  when: node_check.rc != 0
