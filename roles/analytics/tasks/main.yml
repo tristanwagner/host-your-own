@@ -1,7 +1,7 @@
 - name: Umami - Docker
   vars:
     container: "umami"
-    image: "ghcr.io/umami-software/umami:postgresql-latest"
+    image: "ghcr.io/umami-software/umami:latest"
     data_dir: "/{{ service.umami.subdomain }}-data"
     backup_dir: "{{ common_backup_dir }}/{{ service.umami.subdomain }}"
     network: "umami_network"
