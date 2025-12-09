@@ -1,8 +1,6 @@
 basic_packages:
   - bat
   - curl
-  # - docker-ce
-  - docker-compose
   - gcc
   - fzf
   - git

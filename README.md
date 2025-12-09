@@ -130,6 +130,8 @@ in the [Umami docs](https://umami.is/docs) is followed.
 
 You can log in to `umami.domain` following the [official instructions](https://umami.is/docs/login).
 
+A crontab is created for updating umami every month and also backing up every weeks
+
 ### Updates and Backups
 
 Both the OS and the individual services are updated on a monthly basis.
@@ -140,6 +142,8 @@ You can download them to you local machine with something like:
 ```sh
 rsync --recursive --compress --partial --progress --times --rsync-path="sudo rsync" [REMOTE_USER]@[your.domain.com]:~/backups local_backup_dir
 ```
+
+crontabs are accessible through the `sudo crontab -l` command
 
 ## Why?
 

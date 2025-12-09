@@ -1,9 +1,53 @@
-- name: Install packages
-  import_role:
-    name: common_roles/install_latest
-  vars:
-    packages:
-      - "docker.io"
+- name: Check if docker is installed
+  command: which docker
+  register: docker_exists
+  ignore_errors: true
+  changed_when: false
+
+- name: Install Docker
+  when: docker_exists.rc != 0
+  block:
+    - name: Install dependencies
+      become: true
+      apt:
+        name:
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: true
+
+    - name: Create directory for Docker's GPG key
+      become: true
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Docker's official GPG key
+      become: true
+      get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: 'a+r'
+        force: true
+
+    - name: Add Docker repository
+      become: true
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        state: present
+        update_cache: true
+
+    - name: Install packages
+      import_role:
+        name: common_roles/install_latest
+      vars:
+        packages:
+          - "docker-ce"
+          - "docker-ce-cli"
+          - "containerd.io"
+          - "docker-buildx-plugin"
+          - "docker-compose-plugin"
 
 - name: Setup log rotation
   become: true
