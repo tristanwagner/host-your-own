@@ -22,6 +22,9 @@ all:
       umami:
         subdomain: "umami"
         port: 85
+      n8n:
+        subdomain: "n8n"
+        port: 86
     ports:
       ssh: 22
       http: 80

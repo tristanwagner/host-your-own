@@ -11,6 +11,7 @@ An Ansible playbook that sets up:
 - [Vaultwarden](https://github.com/dani-garcia/vaultwarden) instance @ `vault.domain`.
 - [SearxNG](https://github.com/searxng/searxng) instance @ `searx.domain`.
 - [Gitea](https://github.com/go-gitea/gitea) instance @ `git.domain`.
+- [n8n](https://github.com/n8n-io/n8n) instance @ `n8n.domain`.
 - Regular unattended backups and updates for these services.
 - HTTPS all the things.
 - Regular unattended SSL certs renewal.
@@ -131,6 +132,15 @@ in the [Umami docs](https://umami.is/docs) is followed.
 You can log in to `umami.domain` following the [official instructions](https://umami.is/docs/login).
 
 A crontab is created for updating umami every month and also backing up every weeks
+
+#### n8n
+
+The default docker-compose installation process provided
+in the [n8n docs](https://docs.n8n.io/hosting/) is followed.
+
+You can log in to `n8n.domain` and create the admin user.
+
+A crontab is created for updating n8n every month and also backing up every weeks
 
 ### Updates and Backups
 

@@ -14,6 +14,7 @@
          (['vault.' ~ domain] if 'vault' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
          (['git.' ~ domain] if 'gitea' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
          (['umami.' ~ domain] if 'analytics' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+         (['n8n.' ~ domain] if 'n8n' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
          (['searx.' ~ domain] if 'searx' in ansible_run_tags or ansible_run_tags | length == 0 else []) }}
 
 - name: Run cert script

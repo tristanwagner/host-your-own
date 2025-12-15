@@ -1,0 +1,12 @@
+- name: n8n - Docker
+  vars:
+    container: "n8n"
+    image: "n8nio/n8n:latest"
+    data_dir: "/{{ service.n8n.subdomain }}-data"
+    backup_dir: "{{ common_backup_dir }}/{{ service.n8n.subdomain }}"
+    network: "n8n_network"
+  block:
+    - import_tasks: setup.yml
+    - import_tasks: run.yml
+      tags: ignore-ci # TODO: docker in ci
+    - import_tasks: maintenance.yml

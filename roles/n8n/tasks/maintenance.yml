@@ -1,0 +1,44 @@
+- name: Install packages
+  import_role:
+    name: common_roles/install_latest
+  vars:
+    packages: "cron"
+
+- name: Monthly updates
+  become: true
+  tags: n8n_update
+  cron:
+    name: update n8n
+    state: present
+    minute: "0"
+    hour: "0"
+    day: "1"
+    job: >
+      /usr/bin/docker stop {{ container }};
+      /usr/bin/docker rm {{ container }};
+      /usr/bin/docker pull {{ image }};
+      /usr/bin/docker run -d
+      --restart unless-stopped
+      --name {{ container }}
+      --env-file /home/{{ username }}/docker_env_files/{{ service.n8n.subdomain }}.env
+      -p {{ service.n8n.port }}:5678
+      --network {{ network }}
+      -v /{{ service.n8n.subdomain }}-data:/home/node/.n8n
+      {{ image }};
+
+- name: Backup
+  block:
+    - name: Mkdir backup_dir
+      file:
+        state: directory
+        path: "{{ backup_dir }}"
+        mode: 0755
+
+    - name: Weekly backups
+      become: true
+      cron:
+        name: "backup n8n"
+        state: "present"
+        special_time: "weekly"
+        job: >
+          tar -czvf {{ backup_dir }}/n8n_backup.tar.gz /{{ service.n8n.subdomain }}-data

@@ -37,7 +37,8 @@
         ([service.vault] if 'vault' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
         ([service.searx] if 'searx' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
         ([service.gitea] if 'gitea' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
-        ([service.umami] if 'analytics' in ansible_run_tags or ansible_run_tags | length == 0 else [])
+        ([service.umami] if 'analytics' in ansible_run_tags or ansible_run_tags | length == 0 else []) +
+        ([service.n8n] if 'n8n' in ansible_run_tags or ansible_run_tags | length == 0 else [])
       }}
 
 - name: Config proxy server for services

@@ -59,6 +59,11 @@
       tags:
         - analytics
 
+    - role: n8n
+      tags:
+        - n8n
+        - services
+
     - role: onion
       become: true
       tags:

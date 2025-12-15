@@ -1,0 +1,22 @@
+- name: Custom network
+  docker_network:
+    name: "{{ network }}"
+    state: present
+
+- name: Run n8n
+  docker_container:
+    name: "{{ container }}"
+    image: "{{ image }}"
+    ports:
+      - "{{ service.n8n.port }}:5678"
+    env_file: "/home/{{ username }}/docker_env_files/{{ service.n8n.subdomain }}.env"
+    volumes:
+      - "/{{ service.n8n.subdomain }}-data:/home/node/.n8n"
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ network }}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:5678/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
